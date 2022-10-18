@@ -1,0 +1,12 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Team23\T23InlineContainer\:
+    resource: '../Classes/*'
+    exclude: '../Classes/Domain/Model/*'
+
+  Team23\T23InlineContainer\Tca\ItemProcFunc:
+    public: true

@@ -1,0 +1,34 @@
+{
+    "name": "team23/t23-inline-container",
+    "description": "Makes Containers usable inline in EXT:News",
+    "type": "typo3-cms-extension",
+    "homepage": "https://www.team23.de/",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "typo3/cms-core": "^11.0",
+        "b13/container": "^2"
+    },
+    "suggest": {
+        "georgringer/news": "Most usefull application of this extension."
+    },
+    "authors": [
+        {
+            "name": "Tim Dreier",
+            "email": "dreier@team23.de",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Team23\\T23InlineContainer\\": "Classes/"
+        }
+    },
+    "replace": {
+        "typo3-ter/t23-inline-container": "self.version"
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "t23_inline_container"
+        }
+    }
+}
