@@ -50,14 +50,16 @@ call_user_func(function ($extKey, $table) {
 
     $containerRegistry = GeneralUtility::makeInstance(\B13\Container\Tca\Registry::class);
 
-    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
-        'tt_content',
-        'tx_t23inlinecontainer_elements',
-        implode(
-            ',',
-            $containerRegistry->getRegisteredCTypes()
-        ),
-        'before:--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.appearance'
-    );
+    if (array_key_exists('containerConfiguration', $GLOBALS['TCA']['tt_content'])) {
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
+            'tt_content',
+            'tx_t23inlinecontainer_elements',
+            implode(
+                ',',
+                $containerRegistry->getRegisteredCTypes()
+            ),
+            'before:--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.appearance'
+        );
+    }
 
 }, 't23_inline_container', 'tt_content');
