@@ -16,3 +16,9 @@ services:
       - name: event.listener
         identifier: 'addFieldToAllContainers'
         event: TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent
+
+  Team23\T23InlineContainer\Listener\removeContainerCopyHook:
+    tags:
+      - name: event.listener
+        identifier: 'removeContainerCopyHook'
+        event: TYPO3\CMS\Core\Core\Event\BootCompletedEvent
