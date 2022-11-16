@@ -55,7 +55,8 @@ class CommandMapAfterFinishHook
                 }
                 $newId = $copyMappingArray_merged['tt_content'][$id];
                 $containerRecord = $this->database->fetchOneRecord($newId);
-                if ($containerRecord['tx_container_parent'] > 0) {
+                if (!$this->registry->isContainerElement($containerRecord['CType'])){
+                    //only process containers
                     continue;
                 }
                 $localDataHandler = GeneralUtility::makeInstance(DataHandler::class);
