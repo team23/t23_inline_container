@@ -22,3 +22,6 @@ services:
       - name: event.listener
         identifier: 'removeContainerCopyHook'
         event: TYPO3\CMS\Core\Core\Event\BootCompletedEvent
+
+  Team23\T23InlineContainer\Hooks\Datahandler\CommandMapAfterFinishHook:
+    public: true
