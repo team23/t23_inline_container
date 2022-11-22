@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Team23\T23InlineContainer\Tca;
+namespace Team23\T23InlineContainer\Listener;
 
 /*
  * This file is part of TYPO3 CMS-based extension "t23_inline_container" by TEAM23.
