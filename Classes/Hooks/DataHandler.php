@@ -23,7 +23,7 @@ class DataHandler implements SingletonInterface
 
     public function processCmdmap_postProcess($command, $table, $id, $value, $pObj, $pasteUpdate, $pasteDatamap)
     {
-        if (in_array($command, ['copy', 'localize']) && $table === 'tx_extension_table') {
+        if (in_array($command, ['copy', 'localize']) && $table === 'tt_content') {
             $GLOBALS['TCA']['tt_content']['columns']['tx_t23inlinecontainer_elements']['config']['type'] = 'tx_t23inlinecontainer_elements';
         }
     }
