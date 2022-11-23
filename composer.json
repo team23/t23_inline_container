@@ -1,6 +1,6 @@
 {
     "name": "team23/t23-inline-container",
-    "description": "Makes Containers usable inline in EXT:News",
+    "description": "An extension to manage content elements inline in b13/container similar like possible in gridelementsteam/gridelements before.",
     "type": "typo3-cms-extension",
     "homepage": "https://www.team23.de/",
     "license": "GPL-2.0-or-later",

@@ -9,7 +9,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'T23 Inline Container',
-    'description' => 'Makes Containers usable inline in EXT:News',
+    'description' => 'An extension to manage content elements inline in b13/container similar like possible in gridelementsteam/gridelements before.',
     'category' => 'misc',
     'author' => 'TEAM23',
     'author_email' => 'dreier@team23.de',
