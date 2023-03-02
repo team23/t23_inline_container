@@ -10,3 +10,12 @@ defined('TYPO3') || die();
  */
 
 $GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['tx-t23inlinecontainer'] = 'Team23\T23InlineContainer\Hooks\DataHandler';
+
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']['tcaDatabaseRecord'][\Team23\T23InlineContainer\Backend\FormDataProvider\ContainerChildrenFormDataProvider::class] = [
+    'depends' => [
+        \TYPO3\CMS\Backend\Form\FormDataProvider\PageTsConfig::class,
+    ],
+    'before' => [
+        \TYPO3\CMS\Backend\Form\FormDataProvider\InlineOverrideChildTca::class,
+    ]
+];
