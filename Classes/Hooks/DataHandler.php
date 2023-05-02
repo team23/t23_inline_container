@@ -19,6 +19,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class DataHandler implements SingletonInterface
 {
     /**
+     * @var array<int, array>
+     */
+    private $postProcessContainerRecordList = [];
+
+    /**
      * @param $status
      * @param $table
      * @param $id
@@ -34,19 +39,10 @@ class DataHandler implements SingletonInterface
         if (
             $table === 'tt_content' &&
             ($status === 'update' || $status === 'new') &&
-            (int) $pObj->checkValue_currentRecord['uid'] > 0 &&
-            (int) $pObj->checkValue_currentRecord['tx_t23inlinecontainer_elements'] > 0
+            (int)$pObj->checkValue_currentRecord['tx_t23inlinecontainer_elements'] > 0 &&
+            (0 < $containerUid = (int)$pObj->checkValue_currentRecord['uid'])
         ) {
-            $containerRecord = $pObj->checkValue_currentRecord;
-            $cType = $containerRecord['CType'];
-            $database = GeneralUtility::makeInstance(Database::class);
-            $registry = GeneralUtility::makeInstance(Registry::class);
-            $containerFactory = GeneralUtility::makeInstance(ContainerFactory::class);
-            $sorting = GeneralUtility::makeInstance(Sorting::class, $database, $registry, $containerFactory);
-            $sorting->runForSingleContainer($containerRecord, $cType);
-
-            // force update of parent element when new inline element is added
-            $fieldArray['tstamp'] = time() + 1;
+            $this->postProcessContainerRecordList[$containerUid] = $pObj->checkValue_currentRecord;
         }
     }
 
@@ -61,6 +57,27 @@ class DataHandler implements SingletonInterface
     {
         if (in_array($command, ['copy', 'localize']) && $table === 'tt_content') {
             $GLOBALS['TCA']['tt_content']['columns']['tx_t23inlinecontainer_elements']['config']['type'] = 'tx_t23inlinecontainer_elements';
+        }
+    }
+
+    /**
+     * Fix container inline elements sorting after everything else has been processes
+     * @param \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler
+     * @return void
+     */
+    public function processDatamap_afterAllOperations(\TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler)
+    {
+        // Make sure that container sorting is only update once per container element
+        // => Only run sorting update after all operations have been finished
+        if (!empty($this->postProcessContainerRecordList) && $dataHandler->isOuterMostInstance()) {
+            $database = GeneralUtility::makeInstance(Database::class);
+            $registry = GeneralUtility::makeInstance(Registry::class);
+            $containerFactory = GeneralUtility::makeInstance(ContainerFactory::class);
+            $sorting = GeneralUtility::makeInstance(Sorting::class, $database, $registry, $containerFactory);
+            foreach ($this->postProcessContainerRecordList as $containerRecord) {
+                $cType = $containerRecord['CType'];
+                $sorting->runForSingleContainer($containerRecord, $cType);
+            }
         }
     }
 }
