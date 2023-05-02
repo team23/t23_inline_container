@@ -29,3 +29,4 @@ The field will be added automatically to every registered container.
 | `t23_inline_container` | TYPO3 |
 |------------------------|-------|
 | 0.x                    | 11    |
+| 0.x                    | 12    |
