@@ -13,36 +13,30 @@ use B13\Container\Domain\Factory\ContainerFactory;
 use B13\Container\Integrity\Database;
 use B13\Container\Tca\Registry;
 use Team23\T23InlineContainer\Integrity\Sorting;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 
 class DataHandler implements SingletonInterface
 {
     /**
-     * @var array<int, array>
+     * @var array<,int>
      */
-    private $postProcessContainerRecordList = [];
+    private $postProcessContainerUidList = [];
 
     /**
-     * @param $status
-     * @param $table
-     * @param $id
-     * @param $fieldArray
-     * @param \TYPO3\CMS\Core\DataHandling\DataHandler $pObj
-     * @return void
+     * @param \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler
      */
-    public function processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, \TYPO3\CMS\Core\DataHandling\DataHandler &$pObj)
+    public function processDatamap_beforeStart(\TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler): void
     {
-        /**
-         * fix sorting of container inline elements
-         */
-        if (
-            $table === 'tt_content' &&
-            ($status === 'update' || $status === 'new') &&
-            (int)$pObj->checkValue_currentRecord['tx_t23inlinecontainer_elements'] > 0 &&
-            (0 < $containerUid = (int)$pObj->checkValue_currentRecord['uid'])
-        ) {
-            $this->postProcessContainerRecordList[$containerUid] = $pObj->checkValue_currentRecord;
+        if (is_array($dataHandler->datamap['tt_content'] ?? null)) {
+            foreach ($dataHandler->datamap['tt_content'] as $id => $values) {
+                if (!empty($values['tx_t23inlinecontainer_elements']) && MathUtility::canBeInterpretedAsInteger($id)) {
+                    $containerUid = (int) $id;
+                    $this->postProcessContainerUidList[$containerUid] = $containerUid;
+                }
+            }
         }
     }
 
@@ -69,14 +63,17 @@ class DataHandler implements SingletonInterface
     {
         // Make sure that container sorting is only update once per container element
         // => Only run sorting update after all operations have been finished
-        if (!empty($this->postProcessContainerRecordList) && $dataHandler->isOuterMostInstance()) {
-            $database = GeneralUtility::makeInstance(Database::class);
+        if (!empty($this->postProcessContainerUidList) && $dataHandler->isOuterMostInstance()) {
+            $integrityDatabase = GeneralUtility::makeInstance(Database::class);
+            $dataHandlerDatabase = GeneralUtility::makeInstance(\B13\Container\Hooks\Datahandler\Database::class);
             $registry = GeneralUtility::makeInstance(Registry::class);
             $containerFactory = GeneralUtility::makeInstance(ContainerFactory::class);
-            $sorting = GeneralUtility::makeInstance(Sorting::class, $database, $registry, $containerFactory);
-            foreach ($this->postProcessContainerRecordList as $containerRecord) {
-                $cType = $containerRecord['CType'];
-                $sorting->runForSingleContainer($containerRecord, $cType);
+            $sorting = GeneralUtility::makeInstance(Sorting::class, $integrityDatabase, $registry, $containerFactory);
+            foreach ($this->postProcessContainerUidList as $containerRecordUid) {
+                $containerRecord = $dataHandlerDatabase->fetchOneRecord($containerRecordUid);
+                if (!empty($containerRecord)) {
+                    $sorting->runForSingleContainer($containerRecord, $containerRecord['CType']);
+                }
             }
         }
     }
