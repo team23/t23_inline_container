@@ -13,40 +13,30 @@ use B13\Container\Domain\Factory\ContainerFactory;
 use B13\Container\Integrity\Database;
 use B13\Container\Tca\Registry;
 use Team23\T23InlineContainer\Integrity\Sorting;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 
 class DataHandler implements SingletonInterface
 {
     /**
-     * @param $status
-     * @param $table
-     * @param $id
-     * @param $fieldArray
-     * @param \TYPO3\CMS\Core\DataHandling\DataHandler $pObj
-     * @return void
+     * @var array<,int>
      */
-    public function processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, \TYPO3\CMS\Core\DataHandling\DataHandler &$pObj)
-    {
-        /**
-         * fix sorting of container inline elements
-         */
-        if (
-            $table === 'tt_content' &&
-            ($status === 'update' || $status === 'new') &&
-            (int) $pObj->checkValue_currentRecord['uid'] > 0 &&
-            (int) $pObj->checkValue_currentRecord['tx_t23inlinecontainer_elements'] > 0
-        ) {
-            $containerRecord = $pObj->checkValue_currentRecord;
-            $cType = $containerRecord['CType'];
-            $database = GeneralUtility::makeInstance(Database::class);
-            $registry = GeneralUtility::makeInstance(Registry::class);
-            $containerFactory = GeneralUtility::makeInstance(ContainerFactory::class);
-            $sorting = GeneralUtility::makeInstance(Sorting::class, $database, $registry, $containerFactory);
-            $sorting->runForSingleContainer($containerRecord, $cType);
+    private $postProcessContainerUidList = [];
 
-            // force update of parent element when new inline element is added
-            $fieldArray['tstamp'] = time() + 1;
+    /**
+     * @param \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler
+     */
+    public function processDatamap_beforeStart(\TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler): void
+    {
+        if (is_array($dataHandler->datamap['tt_content'] ?? null)) {
+            foreach ($dataHandler->datamap['tt_content'] as $id => $values) {
+                if (!empty($values['tx_t23inlinecontainer_elements']) && MathUtility::canBeInterpretedAsInteger($id)) {
+                    $containerUid = (int) $id;
+                    $this->postProcessContainerUidList[$containerUid] = $containerUid;
+                }
+            }
         }
     }
 
@@ -61,6 +51,30 @@ class DataHandler implements SingletonInterface
     {
         if (in_array($command, ['copy', 'localize']) && $table === 'tt_content') {
             $GLOBALS['TCA']['tt_content']['columns']['tx_t23inlinecontainer_elements']['config']['type'] = 'tx_t23inlinecontainer_elements';
+        }
+    }
+
+    /**
+     * Fix container inline elements sorting after everything else has been processes
+     * @param \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler
+     * @return void
+     */
+    public function processDatamap_afterAllOperations(\TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler)
+    {
+        // Make sure that container sorting is only update once per container element
+        // => Only run sorting update after all operations have been finished
+        if (!empty($this->postProcessContainerUidList) && $dataHandler->isOuterMostInstance()) {
+            $integrityDatabase = GeneralUtility::makeInstance(Database::class);
+            $dataHandlerDatabase = GeneralUtility::makeInstance(\B13\Container\Hooks\Datahandler\Database::class);
+            $registry = GeneralUtility::makeInstance(Registry::class);
+            $containerFactory = GeneralUtility::makeInstance(ContainerFactory::class);
+            $sorting = GeneralUtility::makeInstance(Sorting::class, $integrityDatabase, $registry, $containerFactory);
+            foreach ($this->postProcessContainerUidList as $containerRecordUid) {
+                $containerRecord = $dataHandlerDatabase->fetchOneRecord($containerRecordUid);
+                if (!empty($containerRecord)) {
+                    $sorting->runForSingleContainer($containerRecord, $containerRecord['CType']);
+                }
+            }
         }
     }
 }
