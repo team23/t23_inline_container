@@ -5,6 +5,7 @@ namespace Team23\T23InlineContainer\Backend\FormDataProvider;
 use B13\Container\Tca\Registry;
 use TYPO3\CMS\Backend\Form\FormDataProviderInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -86,13 +87,17 @@ class ContainerChildrenFormDataProvider implements FormDataProviderInterface
     {
         $allowedConfiguration = array_intersect_key($contentDefenderConfiguration['allowed.'] ?? [], $result['processedTca']['columns']);
         $disallowedConfiguration = array_intersect_key($contentDefenderConfiguration['disallowed.'] ?? [], $result['processedTca']['columns']);
+
         if (!empty($allowedConfiguration) || !empty($disallowedConfiguration)) {
+            $typo3version = GeneralUtility::makeInstance(Typo3Version::class);
+            $ctypeValueKey = ($typo3version->getBranch() >= 12) ? 'value' : 1;
+
             foreach ($allowedConfiguration as $field => $value) {
                 $allowedValues = GeneralUtility::trimExplode(',', $value);
                 $result['processedTca']['columns'][$field]['config']['items'] = array_filter(
                     $result['processedTca']['columns'][$field]['config']['items'],
-                    static function ($item) use ($allowedValues) {
-                        return in_array($item[1], $allowedValues, true);
+                    static function ($item) use ($allowedValues, $ctypeValueKey) {
+                        return in_array($item[$ctypeValueKey], $allowedValues, true);
                     }
                 );
             }
@@ -101,8 +106,8 @@ class ContainerChildrenFormDataProvider implements FormDataProviderInterface
                 $disallowedValues = GeneralUtility::trimExplode(',', $value);
                 $result['processedTca']['columns'][$field]['config']['items'] = array_filter(
                     $result['processedTca']['columns'][$field]['config']['items'],
-                    static function ($item) use ($disallowedValues) {
-                        return !in_array($item[1], $disallowedValues, true);
+                    static function ($item) use ($disallowedValues, $ctypeValueKey) {
+                        return !in_array($item[$ctypeValueKey], $disallowedValues, true);
                     }
                 );
             }
