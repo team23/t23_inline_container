@@ -116,7 +116,7 @@ class ContainerChildrenFormDataProvider implements FormDataProviderInterface
             if (!empty($result['inlineParentConfig']['overrideChildTca']['columns']['CType']['config']['itemsProcFunc'])) {
                 unset($result['inlineParentConfig']['overrideChildTca']['columns']['CType']['config']['itemsProcFunc']);
             }
-            $availableCTypes = array_column($cTypeItemList, 1);
+            $availableCTypes = array_column($cTypeItemList, $ctypeValueKey);
 
             // Set the default CType value to the first allowed CType choice
             $result['pageTsConfig']['TCAdefaults.']['tt_content.']['CType'] = current($availableCTypes);
