@@ -23,7 +23,7 @@ call_user_func(function ($extKey, $table) {
                     'foreign_field' => 'tx_container_parent',
                     'appearance' => [
                         'collapseAll' => true,
-                        'expandSingle' => true,
+                        'expandSingle' => false,
                         'levelLinksPosition' => 'bottom',
                         'useSortable' => true,
                         'showPossibleLocalizationRecords' => true,

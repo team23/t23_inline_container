@@ -11,6 +11,7 @@ namespace Team23\T23InlineContainer\Listener;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use Team23\T23InlineContainer\Helper\ColPosHelper;
 use TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -28,6 +29,15 @@ class AddFieldToAllContainers {
             ),
             'after:header'
         );
+
+        // Set maxitems to the sum of maxitems from all columns
+        foreach ($containerRegistry->getRegisteredCTypes() as $CType) {
+            $maxItems = ColPosHelper::getMaxItems($CType);
+
+            if ($maxItems > 0) {
+                $GLOBALS['TCA']['tt_content']['types'][$CType]['columnsOverrides']['tx_t23inlinecontainer_elements']['config']['maxitems'] = $maxItems;
+            }
+        }
 
         $event->setTca($GLOBALS['TCA']);
     }
