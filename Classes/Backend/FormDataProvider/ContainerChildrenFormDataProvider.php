@@ -50,7 +50,6 @@ class ContainerChildrenFormDataProvider implements FormDataProviderInterface
                 $allowedColPosList = [];
                 $selectedColPos = null;
                 $columnConfig = $availableColumns[0];
-
                 if ($result['command'] === 'new') {
                     $selectedColPos = (int) $columnConfig['colPos'];
                     // Set the default colPos value to the first allowed colPos choice
