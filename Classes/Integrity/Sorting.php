@@ -14,6 +14,6 @@ class Sorting extends \B13\Container\Integrity\Sorting
             $colPosByCType[$cType][] = $column['colPos'];
         }
         $this->unsetContentDefenderConfiguration($cType);
-        $this->fixChildrenSorting([$containerRecord], $colPosByCType, false);
+        $this->fixChildrenSorting([$containerRecord], $colPosByCType, false, false);
     }
 }
