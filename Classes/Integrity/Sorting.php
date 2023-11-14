@@ -30,10 +30,10 @@ class Sorting extends \B13\Container\Integrity\Sorting
      * @param bool $dryRun
      * @return void
      */
-    protected function fixChildrenSorting(array $containerRecords, array $colPosByCType, bool $dryRun): void
+    protected function fixChildrenSorting(array $containerRecords, array $colPosByCType, bool $dryRun, bool $enableLogging): void
     {
         $datahandler = GeneralUtility::makeInstance(DataHandler::class);
-        $datahandler->enableLogging = false;
+        $datahandler->enableLogging = $enableLogging;
         foreach ($containerRecords as $containerRecord) {
             try {
                 $container = $this->containerFactory->buildContainer((int)$containerRecord['uid']);

@@ -34,7 +34,7 @@ class ColPosHelper {
         $availableColumns = $containerRegistry->getAvailableColumns($container->getCType());
         foreach ($availableColumns as $key => $columnConfiguration) {
             $children = $container->getChildrenByColPos($columnConfiguration['colPos']);
-            if (count($container->getChildrenByColPos($columnConfiguration['colPos'])) >= $columnConfiguration['maxitems'] && !in_array($childUid, array_column($children, 'uid'))) {
+            if (($columnConfiguration['maxitems'] && count($container->getChildrenByColPos($columnConfiguration['colPos'])) >= $columnConfiguration['maxitems']) && !in_array($childUid, array_column($children, 'uid'))) {
                 unset($availableColumns[$key]);
             }
         }
@@ -54,7 +54,7 @@ class ColPosHelper {
 
         foreach ($containerRegistry->getAvailableColumns($CType) as $columnConfiguration) {
             // If one column has maxitems = 0 unlimited children can be added
-            if ($columnConfiguration['colPos'] !== 0) {
+            if ($columnConfiguration['colPos']) {
                 $maxitems += $containerRegistry->getContentDefenderConfiguration($CType, $columnConfiguration['colPos'])['maxitems'];
             }
             else {

@@ -65,10 +65,12 @@ class ContainerChildrenFormDataProvider implements FormDataProviderInterface
                     }
                 }
 
-                $contentDefenderConfiguration = $containerRegistry->getContentDefenderConfiguration(
-                    $parentRecord['CType'],
-                    $selectedColPos
-                );
+                if ($selectedColPos) {
+                    $contentDefenderConfiguration = $containerRegistry->getContentDefenderConfiguration(
+                        $parentRecord['CType'],
+                        $selectedColPos
+                    );
+                }
                 if (!empty($contentDefenderConfiguration)) {
                     $result = $this->processContentDefenderConfiguration($contentDefenderConfiguration, $result);
                 }
