@@ -3,6 +3,7 @@
 namespace Team23\T23InlineContainer\Backend\FormDataProvider;
 
 use B13\Container\Tca\Registry;
+use Team23\T23InlineContainer\Helper\ColPosHelper;
 use TYPO3\CMS\Backend\Form\FormDataProviderInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Information\Typo3Version;
@@ -43,7 +44,7 @@ class ContainerChildrenFormDataProvider implements FormDataProviderInterface
 
         if (!empty($parentRecord)) {
             $containerRegistry = GeneralUtility::makeInstance(Registry::class);
-            $availableColumns = $containerRegistry->getAvailableColumns($parentRecord['CType']);
+            $availableColumns = ColPosHelper::getAvailableColPos($containerId, (int)$result['vanillaUid']);
             if (!empty($availableColumns)) {
                 // Determine allowed colPos values and column config for selected column (if not empty)
                 $allowedColPosList = [];

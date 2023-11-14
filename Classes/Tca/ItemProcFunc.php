@@ -14,6 +14,7 @@ namespace Team23\T23InlineContainer\Tca;
 use B13\Container\Domain\Factory\ContainerFactory;
 use B13\Container\Domain\Factory\Exception;
 use B13\Container\Tca\Registry;
+use Team23\T23InlineContainer\Helper\ColPosHelper;
 use TYPO3\CMS\Backend\View\BackendLayoutView;
 
 class ItemProcFunc {
@@ -49,14 +50,13 @@ class ItemProcFunc {
                 $grid = $this->tcaRegistry->getGrid($cType);
                 if (is_array($grid)) {
                     $items = [];
-                    foreach ($grid as $rows) {
-                        foreach ($rows as $column) {
-                            $items[] = [
-                                $column['name'],
-                                $column['colPos'],
-                            ];
-                        }
+                    foreach (ColPosHelper::getAvailableColPos((int)$row['tx_container_parent'], (int) $row['uid']) as $colPos) {
+                        $items[] = [
+                            $colPos['name'],
+                            $colPos['colPos'],
+                        ];
                     }
+
                     $parameters['items'] = $items;
                     return;
                 }
