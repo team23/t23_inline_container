@@ -10,6 +10,7 @@ namespace Team23\T23InlineContainer\Hooks;
  */
 
 use B13\Container\Domain\Factory\ContainerFactory;
+use B13\Container\Domain\Service\ContainerService;
 use B13\Container\Integrity\Database;
 use B13\Container\Tca\Registry;
 use Team23\T23InlineContainer\Integrity\Sorting;
@@ -68,7 +69,8 @@ class DataHandler implements SingletonInterface
             $dataHandlerDatabase = GeneralUtility::makeInstance(\B13\Container\Hooks\Datahandler\Database::class);
             $registry = GeneralUtility::makeInstance(Registry::class);
             $containerFactory = GeneralUtility::makeInstance(ContainerFactory::class);
-            $sorting = GeneralUtility::makeInstance(Sorting::class, $integrityDatabase, $registry, $containerFactory);
+            $containerService = GeneralUtility::makeInstance(ContainerService::class);
+            $sorting = GeneralUtility::makeInstance(Sorting::class, $integrityDatabase, $registry, $containerFactory, $containerService);
             foreach ($this->postProcessContainerUidList as $containerRecordUid) {
                 $containerRecord = $dataHandlerDatabase->fetchOneRecord($containerRecordUid);
                 if (!empty($containerRecord)) {
